@@ -1,0 +1,345 @@
+// This is your Prisma schema file for the Life Dashboard
+// Learn more: https://pris.ly/d/prisma-schema
+// Database: PostgreSQL (running locally on your Windows laptop)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// USERS
+// The two of you — Maharishi (Karur) & partner (Dubai)
+// ============================================================
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  pinHash   String   // bcrypt-hashed PIN (never stored plain)
+  role      Role     @default(PRIMARY)
+  currency  Currency @default(INR)
+  location  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  accounts     Account[]
+  transactions Transaction[]
+  loanPayments LoanPayment[]
+  moodNotes    MoodNote[]
+
+  @@map("users")
+}
+
+enum Role {
+  PRIMARY
+  PARTNER
+}
+
+enum Currency {
+  INR
+  AED
+}
+
+// ============================================================
+// ACCOUNTS
+// Bank accounts, wallets — one per person
+// ============================================================
+model Account {
+  id          String      @id @default(cuid())
+  name        String      // e.g. "SBI Savings", "ADCB Dubai"
+  type        AccountType @default(SAVINGS)
+  currency    Currency    @default(INR)
+  balance     Float       @default(0)
+  bankName    String?
+  accountNo   String?     // last 4 digits only
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+
+  @@map("accounts")
+}
+
+enum AccountType {
+  SAVINGS
+  CURRENT
+  SALARY
+  CASH
+  INVESTMENT
+}
+
+// ============================================================
+// TRANSACTIONS
+// Every income, expense, transfer
+// ============================================================
+model Transaction {
+  id          String          @id @default(cuid())
+  type        TransactionType
+  amount      Float
+  currency    Currency        @default(INR)
+  amountInINR Float           // always stored in INR equivalent
+  category    String          // "salary", "food", "emi", "shopping" etc.
+  description String?
+  date        DateTime
+  createdAt   DateTime        @default(now())
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  accountId String
+  account   Account @relation(fields: [accountId], references: [id])
+
+  @@map("transactions")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+// ============================================================
+// LOANS
+// All loans — home loan, personal loan, etc.
+// ============================================================
+model Loan {
+  id              String    @id @default(cuid())
+  name            String    // e.g. "Home Loan - SBI"
+  lender          String?   // "SBI", "HDFC", "Friend"
+  principalAmount Float     // original total borrowed
+  currentBalance  Float     // remaining amount
+  emiAmount       Float     // monthly EMI
+  interestRate    Float?    // annual % rate
+  startDate       DateTime
+  endDate         DateTime? // expected payoff date
+  isCleared       Boolean   @default(false)
+  clearedAt       DateTime?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  payments LoanPayment[]
+
+  @@map("loans")
+}
+
+model LoanPayment {
+  id          String   @id @default(cuid())
+  amount      Float
+  currency    Currency @default(INR)
+  amountInINR Float
+  paidOn      DateTime
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  loanId String
+  loan   Loan   @relation(fields: [loanId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("loan_payments")
+}
+
+// ============================================================
+// GOALS
+// Life goals — Marriage, Car, Emergency Fund, etc.
+// Unlocked in sequence as previous goals are achieved
+// ============================================================
+model Goal {
+  id            String     @id @default(cuid())
+  name          String     // "Marriage", "Car", "Emergency Fund"
+  emoji         String     @default("🎯")
+  targetAmount  Float
+  currentAmount Float      @default(0)
+  currency      Currency   @default(INR)
+  targetDate    DateTime?
+  status        GoalStatus @default(LOCKED) // LOCKED → ACTIVE → ACHIEVED
+  unlockOrder   Int        @default(0)     // 0 = always active, 1 = unlocks after #0, etc.
+  unlockAfterGoalId String?               // which goal must be ACHIEVED first
+  notes         String?
+  achievedAt    DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  contributions GoalContribution[]
+  unlocksGoal   Goal?  @relation("GoalUnlockChain", fields: [unlockAfterGoalId], references: [id])
+  lockedByGoals Goal[] @relation("GoalUnlockChain")
+
+  @@map("goals")
+}
+
+model GoalContribution {
+  id          String   @id @default(cuid())
+  amount      Float
+  currency    Currency @default(INR)
+  amountInINR Float
+  note        String?
+  contributedAt DateTime
+  createdAt   DateTime @default(now())
+
+  goalId String
+  goal   Goal   @relation(fields: [goalId], references: [id])
+
+  @@map("goal_contributions")
+}
+
+enum GoalStatus {
+  LOCKED    // not yet unlocked
+  ACTIVE    // currently working toward
+  ACHIEVED  // completed! 🎉
+  PAUSED    // temporarily on hold
+}
+
+// ============================================================
+// MONTHLY SNAPSHOTS
+// A monthly "photo" of your finances — for history & charts
+// ============================================================
+model MonthlySnapshot {
+  id               String   @id @default(cuid())
+  year             Int
+  month            Int      // 1-12
+  totalIncomeINR   Float    @default(0)
+  totalExpenseINR  Float    @default(0)
+  totalSavingsINR  Float    @default(0)
+  totalLoansINR    Float    @default(0) // total outstanding
+  netWorthINR      Float    @default(0)
+  aedToInrRate     Float    @default(22.5) // exchange rate used that month
+  notes            String?
+  createdAt        DateTime @default(now())
+
+  @@unique([year, month])
+  @@map("monthly_snapshots")
+}
+
+// ============================================================
+// EXCHANGE RATES
+// Historical AED → INR rates (for accurate conversion)
+// ============================================================
+model ExchangeRate {
+  id        String   @id @default(cuid())
+  fromCurrency Currency
+  toCurrency   Currency
+  rate         Float
+  date         DateTime
+  createdAt    DateTime @default(now())
+
+  @@unique([fromCurrency, toCurrency, date])
+  @@map("exchange_rates")
+}
+
+// ============================================================
+// MEMORIES & RELATIONSHIP (Phase 11)
+// ============================================================
+model MoodNote {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  emoji     String   
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@map("mood_notes")
+}
+
+model BucketListItem {
+  id          String   @id @default(cuid())
+  title       String
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@map("bucket_list")
+}
+
+model ScrapbookMemory {
+  id        String   @id @default(cuid())
+  title     String
+  imageUrl  String   
+  date      DateTime
+  createdAt DateTime @default(now())
+
+  @@map("scrapbook")
+}
+
+// ============================================================
+// LIFESTYLE & PLANNING (Phase 12)
+// ============================================================
+model Subscription {
+  id           String   @id @default(cuid())
+  name         String
+  cost         Float
+  currency     Currency @default(INR)
+  billingCycle String   @default("MONTHLY") // "MONTHLY" or "YEARLY"
+  nextBillDate DateTime?
+  createdAt    DateTime @default(now())
+
+  @@map("subscriptions")
+}
+
+model MarriagePrepItem {
+  id            String   @id @default(cuid())
+  name          String
+  estimatedCost Float
+  actualCost    Float?
+  currency      Currency @default(INR)
+  isBought      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@map("marriage_prep")
+}
+
+model VisionMilestone {
+  id             String   @id @default(cuid())
+  year           Int
+  myLpa          Float
+  herLpa         Float
+  targetNetWorth Float
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  @@map("vision_milestones")
+}
+
+// ============================================================
+// TIMELINE & JOURNEY (Phase 13)
+// ============================================================
+model CalendarEvent {
+  id        String   @id @default(cuid())
+  title     String
+  date      DateTime
+  type      String   @default("ANNIVERSARY") // "ANNIVERSARY", "BIRTHDAY", "MEETING"
+  createdAt DateTime @default(now())
+
+  @@map("calendar_events")
+}
+
+model LifeMilestone {
+  id          String   @id @default(cuid())
+  year        Int
+  title       String
+  description String?
+  icon        String   @default("📌")
+  createdAt   DateTime @default(now())
+
+  @@map("life_milestones")
+}
+
+// ============================================================
+// PRIVACY VAULT (Phase 14)
+// ============================================================
+model VaultItem {
+  id          String   @id @default(cuid())
+  type        String   @default("DOCUMENT") // "DOCUMENT", "PASSWORD", "OTHER"
+  title       String
+  content     String?  // Can be the password, ID number, etc.
+  expiryDate  DateTime? // Important for Passports/Visas
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("vault_items")
+}

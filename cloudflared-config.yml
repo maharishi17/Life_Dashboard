@@ -1,0 +1,7 @@
+tunnel: life-dashboard
+credentials-file: C:\Users\USER\.cloudflared\life-dashboard.json
+
+ingress:
+  - hostname: your-tunnel-name.trycloudflare.com
+    service: http://localhost:3000
+  - service: http_status:404
