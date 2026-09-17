@@ -186,7 +186,7 @@ export default function SettingsPage() {
           <div>
             <p style={{ color: '#fff', fontWeight: 800, fontSize: '1.1rem' }}>{user?.name}</p>
             <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.82rem' }}>
-              📍 {user?.location} · {user?.role === 'PRIMARY' ? 'Primary Account' : 'Partner Account'} · {user?.currency}
+              📍 {user?.location} · {(user?.role?.toUpperCase() === 'PRIMARY') ? 'Primary Account' : 'Partner Account'} · {user?.currency}
             </p>
           </div>
         </div>

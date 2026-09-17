@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const cookieStore = await cookies();
     const sessionUserId = cookieStore.get("ld-session")?.value;
     if (!sessionUserId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const loanId = params.id;
+    const { id: loanId } = await params;
     const body = await req.json();
     const { amount, currency, date, notes } = body;
 

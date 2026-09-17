@@ -15,7 +15,7 @@ export default function MemoriesPage() {
       
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-        style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '10px' }}>
+        className="header-flex" style={{ marginBottom: '10px' }}>
         <div style={{
           width: '48px', height: '48px', borderRadius: '14px',
           background: 'var(--gradient-danger)', display: 'flex',
@@ -31,10 +31,10 @@ export default function MemoriesPage() {
       </motion.div>
 
       {/* Inner Layout (Sidebar + Content) */}
-      <div style={{ display: 'flex', gap: '20px', flex: 1, minHeight: '600px' }}>
+      <div className="flex-col-mobile" style={{ flex: 1, minHeight: '600px' }}>
         
         {/* Inner Sidebar */}
-        <div className="card" style={{ width: '220px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', border: 'none', background: 'var(--bg-card)' }}>
+        <div className="card life-tabs" style={{ padding: '16px', border: 'none', background: 'var(--bg-card)' }}>
           {[
             { id: 'moods', icon: MessageSquare, label: 'Mood Jar' },
             { id: 'bucket', icon: CheckSquare, label: 'Bucket List' },
@@ -56,9 +56,9 @@ export default function MemoriesPage() {
                   textAlign: 'left'
                 }}
               >
-                <tab.icon size={18} />
-                {tab.label}
-              </button>
+                  <tab.icon size={18} style={{ flexShrink: 0 }} />
+                  <span style={{ whiteSpace: 'nowrap' }}>{tab.label}</span>
+                </button>
             )
           })}
         </div>

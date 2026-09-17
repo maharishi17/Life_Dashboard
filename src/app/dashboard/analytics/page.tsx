@@ -53,7 +53,7 @@ export default function AnalyticsPage() {
     <div className="container-app">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-        style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '28px' }}>
+        className="header-flex" style={{ marginBottom: '28px' }}>
         <div style={{
           width: '48px', height: '48px', borderRadius: '14px',
           background: 'var(--gradient-hero)', display: 'flex',
@@ -69,16 +69,16 @@ export default function AnalyticsPage() {
       </motion.div>
 
       {/* Summary Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="card" style={{ padding: '16px' }}>
+      <div className="flex-col-mobile" style={{ marginBottom: '32px' }}>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="card" style={{ padding: '16px', flex: 1 }}>
           <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Total Income</p>
           <p style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-3)' }}>{formatCurrency(data.summary.totalIncome)}</p>
         </motion.div>
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card" style={{ padding: '16px' }}>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card" style={{ padding: '16px', flex: 1 }}>
           <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Total Expense</p>
           <p style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-2)' }}>{formatCurrency(data.summary.totalExpense)}</p>
         </motion.div>
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="card" style={{ padding: '16px' }}>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="card" style={{ padding: '16px', flex: 1 }}>
           <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Savings Rate</p>
           <p style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-1)' }}>{data.summary.savingsRate.toFixed(1)}%</p>
         </motion.div>
@@ -89,22 +89,24 @@ export default function AnalyticsPage() {
         <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <TrendingUp size={18} color="var(--accent-1)" /> Income vs Expense (6 Months)
         </h3>
-        <div style={{ width: '100%', height: '250px' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data.monthlyData} margin={{ top: 5, right: 0, left: -20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} dy={10} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} tickFormatter={formatCurrency} />
-              <RechartsTooltip 
-                cursor={{ fill: 'var(--border)', opacity: 0.4 }}
-                contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)' }}
-                itemStyle={{ fontWeight: 600 }}
-              />
-              <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-              <Bar dataKey="income" name="Income" fill="var(--accent-3)" radius={[4, 4, 0, 0]} barSize={20} />
-              <Bar dataKey="expense" name="Expense" fill="var(--accent-2)" radius={[4, 4, 0, 0]} barSize={20} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="scroll-x" style={{ width: '100%', height: '250px' }}>
+          <div style={{ minWidth: '500px', height: '100%', flex: 1 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data.monthlyData} margin={{ top: 5, right: 0, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} tickFormatter={formatCurrency} />
+                <RechartsTooltip 
+                  cursor={{ fill: 'var(--border)', opacity: 0.4 }}
+                  contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)' }}
+                  itemStyle={{ fontWeight: 600 }}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                <Bar dataKey="income" name="Income" fill="var(--accent-3)" radius={[4, 4, 0, 0]} barSize={20} />
+                <Bar dataKey="expense" name="Expense" fill="var(--accent-2)" radius={[4, 4, 0, 0]} barSize={20} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </motion.div>
 
@@ -131,7 +133,7 @@ export default function AnalyticsPage() {
                   <RechartsTooltip 
                     contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)' }}
                     itemStyle={{ fontWeight: 600 }}
-                    formatter={(value: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value)}
+                    formatter={(value: any) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(Number(value))}
                   />
                   <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
                 </PieChart>

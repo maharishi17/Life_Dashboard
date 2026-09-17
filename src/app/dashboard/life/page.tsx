@@ -73,18 +73,9 @@ export default function LifeHubPage() {
       </motion.div>
 
       {/* Main Layout */}
-      <div
-        style={{ display: "flex", gap: "24px", flex: 1, minHeight: "600px" }}
-      >
+      <div className="flex-col-mobile" style={{ flex: 1, minHeight: "600px" }}>
         {/* Massive Cards Sidebar */}
-        <div
-          style={{
-            width: "280px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "16px",
-          }}
-        >
+        <div className="life-tabs">
           <HubCard
             icon={Coffee}
             title="Lifestyle & Planning"
@@ -149,12 +140,18 @@ function HubCard({ icon: Icon, title, desc, isActive, onClick, color }: any) {
       whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
       onClick={onClick}
       style={{
-        background: isActive ? 'var(--bg-card)' : 'var(--bg-input)',
-        border: `2px solid ${isActive ? color : 'transparent'}`,
-        borderRadius: '16px', padding: '20px', cursor: 'pointer',
-        display: 'flex', flexDirection: 'column', gap: '12px',
-        boxShadow: isActive ? `0 8px 24px ${color}20` : 'none',
-        transition: 'all 0.3s ease'
+        padding: "20px",
+        borderRadius: "16px",
+        border: isActive ? `2px solid ${color}` : "2px solid transparent",
+        background: isActive ? `${color}15` : "var(--bg-card)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "16px",
+        boxShadow: isActive ? `0 8px 24px ${color}20` : "var(--shadow-sm)",
+        transition: "all 0.3s ease",
+        flexShrink: 0,
+        minWidth: "260px"
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -249,7 +246,7 @@ function LifestyleEngine() {
         {subTab === "subs" && <Subscriptions />}
         {subTab === "marriage" && <MarriagePrep />}
         {subTab === "vision" && <VisionPlanner />}
-        {subTab === "car" && <GenericPlanner title="Car Plan" description="Plan your dream car, budget, and timeline here." planType="CAR_PLAN" />}
+        {subTab === "car" && <CarPlanner />}
         {subTab === "family" && <GenericPlanner title="Children / Family Planning" description="Discuss and plan your family future, kids, and timelines." planType="FAMILY_PLAN" />}
       </div>
     </div>
@@ -768,6 +765,35 @@ function ProjectionCard({ year, amount, color, isHero }: any) {
 
 // ---------------------------
 // 4. Generic Planner (Car/Family Plan)
+// ---------------------------
+// ---------------------------
+// 5. Car Planner (With Iframe / External Links)
+// ---------------------------
+function CarPlanner() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div>
+        <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '12px' }}>Research & Compare</h2>
+        <div className="card" style={{ padding: '24px', border: '1px solid var(--border)', textAlign: 'center', background: 'var(--gradient-hero)' }}>
+          <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '8px' }}>Find Your Dream Car</h3>
+          <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', marginBottom: '20px' }}>
+            Browse the top selling cars in India, compare features, view on-road prices, and check out EVs, Hybrids, and Petrol models.
+          </p>
+          <a href="https://www.cardekho.com/newcars" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+            <button className="btn" style={{ background: '#fff', color: 'var(--accent-1)', padding: '12px 24px', fontSize: '1rem', fontWeight: 800, borderRadius: 'var(--radius-md)' }}>
+              Browse India's Top Selling Cars & Compare
+            </button>
+          </a>
+        </div>
+      </div>
+      
+      <GenericPlanner title="Car Plan Notes" description="Write your budget, chosen models, and timelines down here." planType="CAR_PLAN" />
+    </div>
+  )
+}
+
+// ---------------------------
+// Generic Planner (Used for Family, generic notes, etc)
 // ---------------------------
 function GenericPlanner({ title, description, planType }: { title: string; description: string; planType: string }) {
   const [content, setContent] = useState('');

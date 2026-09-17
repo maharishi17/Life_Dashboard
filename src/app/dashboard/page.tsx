@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import { io } from 'socket.io-client';
 
 interface DashboardStats {
   totalBalance: number;
@@ -70,6 +71,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [partnerStatus, setPartnerStatus] = useState<any>(null);
   
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
@@ -90,6 +92,73 @@ export default function DashboardPage() {
     }
     fetchStats();
   }, []);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    
+    // Connect to the socket server
+    const socket = io();
+    
+    // Tell the server we are online
+    socket.on('connect', () => {
+      socket.emit('user_connected', { userId: user.id, name: user.name });
+    });
+    
+    // Listen for real-time status updates from server
+    socket.on('status_update', (onlineUsers) => {
+      // Is our partner in the online users array?
+      const partnerOnline = onlineUsers.find((u: any) => u.userId !== user.id);
+      
+      if (partnerOnline) {
+        setPartnerStatus({
+          name: partnerOnline.name,
+          isOnline: true,
+          lastSeenText: 'Online now'
+        });
+      } else {
+        // Fetch their last active time from DB once to show "Last seen" accurately
+        fetch('/api/user/status').then(res => res.json()).then(({ users }) => {
+          const partner = users?.find((u: any) => u.id !== user.id);
+          if (partner) {
+             const lastActive = new Date(partner.lastActiveAt);
+             const now = new Date();
+             const diffMs = now.getTime() - lastActive.getTime();
+             const diffMins = Math.floor(diffMs / 60000);
+             let lastSeenText = '';
+             
+             if (diffMins < 60) {
+                lastSeenText = `Last seen ${diffMins} min${diffMins !== 1 ? 's' : ''} ago`;
+             } else {
+                const diffHours = Math.floor(diffMins / 60);
+                if (diffHours < 24) {
+                   lastSeenText = `Last seen ${diffHours} hr${diffHours !== 1 ? 's' : ''} ago`;
+                } else {
+                   lastSeenText = `Last seen ${Math.floor(diffHours / 24)} days ago`;
+                }
+             }
+             
+             setPartnerStatus({
+                name: partner.name,
+                isOnline: false,
+                lastSeenText
+             });
+          }
+        }).catch(e => console.error(e));
+      }
+    });
+    
+    // Ping periodically so server knows we are still active without refreshing DB constantly
+    const pingInterval = setInterval(() => {
+       if (socket.connected) {
+          socket.emit('ping_active', { userId: user.id });
+       }
+    }, 60000);
+    
+    return () => {
+      clearInterval(pingInterval);
+      socket.disconnect();
+    };
+  }, [user]);
 
   const STATS_DATA = [
     {
@@ -168,22 +237,44 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div style={{
-            background: 'rgba(255,255,255,0.15)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: 'var(--radius-lg)',
-            padding: '16px 20px',
-            textAlign: 'center',
-            border: '1px solid rgba(255,255,255,0.2)',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-              <Heart size={14} color="#fff" fill="#fff" />
-              <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                Together Since
-              </span>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {partnerStatus && (
+              <div style={{
+                background: 'rgba(255,255,255,0.15)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '16px 20px',
+                textAlign: 'right',
+                border: '1px solid rgba(255,255,255,0.2)',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-end', marginBottom: '4px' }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: partnerStatus.isOnline ? '#2ecc71' : '#95a5a6', boxShadow: partnerStatus.isOnline ? '0 0 8px #2ecc71' : 'none' }} />
+                  <span style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800 }}>
+                    {partnerStatus.name}
+                  </span>
+                </div>
+                <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.75rem', fontWeight: 500 }}>
+                  {partnerStatus.lastSeenText}
+                </p>
+              </div>
+            )}
+            <div style={{
+              background: 'rgba(255,255,255,0.15)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '16px 20px',
+              textAlign: 'center',
+              border: '1px solid rgba(255,255,255,0.2)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                <Heart size={14} color="#fff" fill="#fff" />
+                <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  Together Since
+                </span>
+              </div>
+              <p style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 800 }}>2026</p>
+              <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.72rem' }}>Year 1 of our journey</p>
             </div>
-            <p style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 800 }}>2026</p>
-            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.72rem' }}>Year 1 of our journey</p>
           </div>
         </div>
 

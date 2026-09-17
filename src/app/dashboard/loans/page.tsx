@@ -55,7 +55,7 @@ export default function LoansPage() {
     <div className="container-app">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px' }}>
+        className="header-flex" style={{ marginBottom: '28px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{
             width: '48px', height: '48px', borderRadius: '14px',
@@ -100,7 +100,7 @@ export default function LoansPage() {
                   return (
                     <motion.div key={loan.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}
                       className="card" style={{ padding: '24px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                      <div className="header-flex" style={{ alignItems: 'flex-start', marginBottom: '16px' }}>
                         <div>
                           <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>{loan.name}</h3>
                           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{loan.lender || 'Private Lender'}</p>
@@ -128,7 +128,7 @@ export default function LoansPage() {
                       </div>
 
                       {/* Details & Actions */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+                      <div className="header-flex" style={{ paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
                         <div style={{ display: 'flex', gap: '16px' }}>
                           <div>
                             <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600 }}>EMI Amount</p>
@@ -165,7 +165,7 @@ export default function LoansPage() {
               <p className="section-label" style={{ marginBottom: '12px' }}>Cleared Loans</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {clearedLoans.map(loan => (
-                  <div key={loan.id} className="card" style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', opacity: 0.7 }}>
+                  <div key={loan.id} className="card header-flex" style={{ padding: '16px', opacity: 0.7 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gradient-success)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <CheckCircle size={16} color="#fff" />

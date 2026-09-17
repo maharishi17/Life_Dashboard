@@ -54,7 +54,7 @@ export default function GoalsPage() {
     <div className="container-app">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px' }}>
+        className="header-flex" style={{ marginBottom: '28px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{
             width: '48px', height: '48px', borderRadius: '14px',
@@ -97,7 +97,7 @@ export default function GoalsPage() {
                   return (
                     <motion.div key={goal.id} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.1 }}
                       className="card" style={{ padding: '24px', border: '1.5px solid var(--accent-5)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                      <div className="header-flex" style={{ alignItems: 'center', marginBottom: '20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <span style={{ fontSize: '2rem' }}>{goal.emoji}</span>
                           <div>
@@ -149,7 +149,7 @@ export default function GoalsPage() {
               <p className="section-label" style={{ marginBottom: '12px' }}>Locked (Unlocks Later)</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {lockedGoals.map(goal => (
-                  <div key={goal.id} className="card" style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', opacity: 0.6, background: 'var(--bg-input)' }}>
+                  <div key={goal.id} className="card header-flex" style={{ padding: '20px', alignItems: 'center', opacity: 0.6, background: 'var(--bg-input)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                       <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Lock size={18} color="var(--text-muted)" />
@@ -181,7 +181,7 @@ export default function GoalsPage() {
               <p className="section-label" style={{ marginBottom: '12px' }}>Achieved 🎉</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {achievedGoals.map(goal => (
-                  <div key={goal.id} className="card" style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--gradient-success)', color: '#fff' }}>
+                  <div key={goal.id} className="card header-flex" style={{ padding: '20px', alignItems: 'center', background: 'var(--gradient-success)', color: '#fff' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                       <span style={{ fontSize: '1.8rem' }}>{goal.emoji}</span>
                       <div>

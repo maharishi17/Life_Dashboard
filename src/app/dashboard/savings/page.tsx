@@ -121,7 +121,7 @@ export default function SavingsPage() {
     <div className="container-app">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px' }}>
+        className="header-flex" style={{ marginBottom: '28px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{
             width: '48px', height: '48px', borderRadius: '14px',
@@ -168,7 +168,7 @@ export default function SavingsPage() {
 
       {/* Snapshot Action Card */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} 
-        className="card" style={{ padding: '24px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--gradient-hero)', color: '#fff', border: 'none' }}>
+        className="card header-flex" style={{ padding: '24px', marginBottom: '24px', background: 'var(--gradient-hero)', color: '#fff', border: 'none' }}>
         <div>
           <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '4px' }}>Monthly Snapshot</h3>
           <p style={{ fontSize: '0.85rem', opacity: 0.9 }}>
@@ -191,23 +191,25 @@ export default function SavingsPage() {
           <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <TrendingUp size={18} color="var(--accent-1)" /> Net Worth Growth (15 Years)
           </h3>
-          <div style={{ width: '100%', height: '300px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 5, right: 0, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} tickFormatter={formatCurrency} />
-                <RechartsTooltip 
-                  contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)' }}
-                  itemStyle={{ fontWeight: 600 }}
-                  formatter={(value: number) => formatCurrency(value)}
-                />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                <Line type="monotone" dataKey="NetWorth" name="Net Worth" stroke="var(--accent-1)" strokeWidth={3} dot={{ r: 4, fill: 'var(--accent-1)', strokeWidth: 0 }} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="Savings" name="Total Liquid" stroke="var(--accent-3)" strokeWidth={2} strokeDasharray="5 5" dot={false} />
-                <Line type="monotone" dataKey="Debt" name="Total Debt" stroke="var(--accent-2)" strokeWidth={2} strokeDasharray="5 5" dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="scroll-x" style={{ width: '100%', height: '300px' }}>
+            <div style={{ minWidth: '500px', height: '100%', flex: 1 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData} margin={{ top: 5, right: 0, left: -20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} tickFormatter={formatCurrency} />
+                  <RechartsTooltip 
+                    contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text-primary)' }}
+                    itemStyle={{ fontWeight: 600 }}
+                    formatter={(value: any) => formatCurrency(Number(value))}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                  <Line type="monotone" dataKey="NetWorth" name="Net Worth" stroke="var(--accent-1)" strokeWidth={3} dot={{ r: 4, fill: 'var(--accent-1)', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="Savings" name="Total Liquid" stroke="var(--accent-3)" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                  <Line type="monotone" dataKey="Debt" name="Total Debt" stroke="var(--accent-2)" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </motion.div>
       ) : (
